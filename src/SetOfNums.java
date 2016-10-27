@@ -209,8 +209,8 @@ public class SetOfNums {
         int min, nextMin;
         int d;
         // The first four terms of an arithmetic progression whose membership to query of the given partition
-        int term1; // a
-        int term2; // a + d
+        // int term1; // a
+        // int term2; // a + d
         int term3; // a + 2d
         int term4; // a + 3d
 
@@ -224,8 +224,8 @@ public class SetOfNums {
                 min = part.get(i);
                 nextMin = part.get(j);
                 d = nextMin - min;
-                // term1 = min; min is always going to be present
-                // term2 = min + d; min + d = nextMin, which will also always be present
+                // term1 = min; // min is always going to be present
+                // term2 = min + d; // min + d = nextMin, which will also always be present
                 // Thanks, Julzies.
                 term3 = min + 2*d;
                 term4 = min + 3*d;
