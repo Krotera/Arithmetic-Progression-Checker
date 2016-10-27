@@ -236,7 +236,7 @@ public class SetOfNums {
                         && part.contains(term4)) {
                     return true;
                 }
-                // Otherwise, do nothing, as containsAP is false by default.
+                // Otherwise, proceed to return false.
             }
         }
         return false;
