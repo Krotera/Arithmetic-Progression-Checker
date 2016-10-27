@@ -224,16 +224,14 @@ public class SetOfNums {
                 min = part.get(i);
                 nextMin = part.get(j);
                 d = nextMin - min;
-                term1 = min;
-                term2 = min + d;
+                // term1 = min; min is always going to be present
+                // term2 = min + d; min + d = nextMin, which will also always be present
+                // Thanks, Julzies.
                 term3 = min + 2*d;
                 term4 = min + 3*d;
 
                 // Query partition for membership. If all of the terms exist, this partition is disqualified.
-                if (part.contains(term1)
-                        && part.contains(term2)
-                        && part.contains(term3)
-                        && part.contains(term4)) {
+                if (part.contains(term3) && part.contains(term4)) {
                     return true;
                 }
                 // Otherwise, proceed to return false.
