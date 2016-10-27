@@ -1,4 +1,4 @@
 # IJ cruft
-.idea
-.iml
-/META-INF
+.idea/
+*.iml
+META-INF/
