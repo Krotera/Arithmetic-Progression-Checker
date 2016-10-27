@@ -5,14 +5,14 @@ import java.util.ArrayList;
  */
 public class SetOfNums {
 
-    private ArrayList<Integer> numbers; // The initial range of numbers
-    private ArrayList<String> goodPartitions; // All partitions of this set of numbers without an arithmetic progression
+    private ArrayList<Integer> numbers; // The given set of numbers
+    private ArrayList<String> goodPartitions; // All partitions of non-redundant partitioning schemes without an arithmetic progression
     private int length;
 
     /**
-     * Initializes a SetOfNums object with a range of integers greater than or equal to 4
-     * @param start Starting value
-     * @param end Ending value
+     * Initializes a SetOfNums object with a range of integers [n, n + 1, ..., k - 1, k]
+     * @param start Starting value n
+     * @param end Ending value k
      */
     public SetOfNums(int start, int end) {
         goodPartitions = new ArrayList<>();
