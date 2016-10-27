@@ -259,16 +259,16 @@ public class SetOfNums {
             numberSetString += Integer.toString(n) + " ";
         }
         numberSetString = numberSetString.substring(0, numberSetString.length() - 1) + "]";
-        result = "For " + numberSetString + "," + "\n\n";
+        result = "\nFor " + numberSetString + "," + "\n\n";
 
         for (String s : goodPartitions) {
             result += s + "\n\n";
         }
 
-        // Checking if result indicates that no partitions without arithmetic progressions were found (i.e., a low line count)
+        // Checking if result indicates that no schemes without at least one arithmetic progression were found (i.e., a low line count)
         if (result.split("\n").length <= 2) {
             // If so, give a clear message indicating so.
-            result = "No partitions without arithmetic progressions were found for the set " + numberSetString + ".";
+            result = "\nNo partitions in schemes without at least one arithmetic progression were found for the set " + numberSetString + ".";
         }
         return result;
     }
