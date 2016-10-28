@@ -1,7 +1,7 @@
 /*
  * Driver
  *
- * v0.2
+ * v0.3
  *
  * 2016-10-27
  *
@@ -33,7 +33,7 @@ public class Driver {
         int start, end;
         SetOfNums nums;
 
-        System.out.println("For a set of sequential, contiguous integers [n, n + 1, ..., k - 1, k], partitions of the " +
+        System.out.println("Arithmetic Progression Checker v0.1.9\n\nFor a set of sequential, contiguous integers [n, n + 1, ..., k - 1, k], partitions of the " +
                 "palindromic partition schemes without arithmetic progressions in either partition, if any, will be returned.\n");
         System.out.println("Enter starting number n (greater than 0): ");
         start = sc.nextInt();
