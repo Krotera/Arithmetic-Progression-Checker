@@ -1,4 +1,7 @@
 # Arithmetic Progression Checker
+***
+*For Tom, with love~*
+***
 
 **v2.0.0** (May have critical bugs)
 
@@ -13,4 +16,4 @@ This program
 
 ## License
 
-GNU General Public License v3.0
+[GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
