@@ -1,7 +1,7 @@
 /*
  * SetOfNums
  *
- * v1.0.10
+ * v2.0.0
  *
  * 2016-10-27
  *
@@ -22,38 +22,32 @@
  */
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 /**
  * Contains a set of consecutive integers and operates on it to return partitions without arithmetic progressions
  */
 public class SetOfNums {
 
-    private ArrayList<Integer> numbers; // The given set of numbers
-    private ArrayList<String> goodPartitions; // All partitions of non-redundant partitioning schemes without an arithmetic progression
-    private int length;
+    private ArrayList<Integer> numbers; // The initial set of numbers
+    private ArrayList<String> goodPartitions; // All partitions without an arithmetic progression
+    private int length; // Length of the initial set of numbers
+    private int p, q; // Lengths of the arithmetic progressions
 
     /**
      * Initializes a SetOfNums object with a range of integers [n, n + 1, ..., k - 1, k]
      * @param start Starting value n
      * @param end Ending value k
      */
-    public SetOfNums(int start, int end) {
-        goodPartitions = new ArrayList<>();
-        if (end < 4) {
-            throw new IllegalArgumentException("The second argument must be greater than or equal to 4! Rerun the program.");
-        }
-        else if (start <= 0) {
-            throw new IllegalArgumentException("The first argument must be greater than 0! Rerun the program.");
-        }
-        else if (start >= end) {
-            throw new IllegalArgumentException("The first argument must be less than the second argument! Rerun the program.");
-        }
-
-        int temp = start; // Temporary value for populating the array
-
+    public SetOfNums(int start, int end, int p, int q) {
         // Initializing class members
         length = end - start + 1;
         numbers = new ArrayList<>(length);
+        this.p = p;
+        this.q = q;
+        goodPartitions = new ArrayList<>();
+        int temp = start; // Temporary value for populating the array
+
         // Populating array
         for (int i = 0; i < length; i++) {
             numbers.add(i, temp++);
@@ -62,30 +56,25 @@ public class SetOfNums {
 
     /**
      * !! THE BEAST METHOD !!
-     * Builds all relevant partition schemes for the current SetOfNums. A scheme consists of two partitions. The
-     * partitions of each scheme are checked for an arithmetic progression in at least 4 terms. If none is found in
-     * a partition, that partition is stored in goodPartitions. A summary of how schemes are built follows:
+     * Builds all relevant partitions for the current SetOfNums. How partitions are built follows:
      *
-     * k = 2^(n/2) / 2 is the number of relevant schemes when n is even (because half of the possible schemes
-     * will be redundant), and k = 2^((n - 1)/2) when n is odd.
+     * A useful number k = 2^(n/2) / 2 is the number of relevant partitions when n is even (because half of the
+     * possible partitions will be redundant), and k = 2^((n - 1)/2) when n is odd.
      *
      * Count from 0 to k - 1 in binary strings
      *
      * Left pad the strings to floor(n/2) bits
      *
      * Mirror these strings on the right side (directly if n is even, across a middle 1 if n is odd)
-     *
-     * This binary pattern informs which elements in the array of n elements to recruit into the first partition
-     * (e.g., all 1's). The others are recruited into the second partition.
      */
     public void buildPartitionSchemes() {
         int k; // Our super special magic number
-        int bitTarget = (int) Math.floor(length / 2);
-        boolean isOdd = false; // When n is odd, the middle element can be put in any partition and the rest trated as an even set.
+        int bitTarget = (int) Math.floor(length / 2); // The number of bits to pad to
+        boolean isOdd = false; // When n is odd, the middle element can be put in any subset of the partition (chosen as 1)
         String middleBit = ""; // If n is odd, this will be the middle element, 1, across which strings are mirrored.
-        ArrayList<String> binaryStrings = new ArrayList<>();
-        ArrayList<String> paddedBinaryStrings = new ArrayList<>();
-        ArrayList<String> finishedBinaryStrings = new ArrayList<>();
+        ArrayList<String> binaryStrings = new ArrayList<>(); // Fresh counts from 0 to k - 1
+        ArrayList<String> paddedBinaryStrings = new ArrayList<>(); // Counts padded to bitTarget
+        ArrayList<String> finishedBinaryStrings = new ArrayList<>(); // Padded counts mirrored
 
         // Determine k. If n (the length of the array) is even,
         if (length % 2 == 0) {
@@ -132,147 +121,150 @@ public class SetOfNums {
             finishedBinaryStrings.add(s + middleBit + sMirror);
         }
 
-        // Passing each scheme string to buildAndCheckPartitions()
+        // Passing each partitions string to buildAndCheckPartitions()
         for (String s : finishedBinaryStrings) {
             buildAndCheckPartitions(s);
         }
     }
 
     /**
-     * Builds and checks two partitions for a given partition scheme and stores that partition (plus its binary scheme
-     * string) as a string in goodPartitions
-     * @param partitionScheme binary string representing a partition pattern
+     * Builds and checks the subsets of a partition for the arithmetic progressions of the two given lengths twice --
+     * once for the original partition and once for its "inverse" -- and stores all partitions whose two subsets do not
+     * contain the queried progressions as strings in goodPartitions
+     *
+     * In practice, the same partition's subsets are checked for the opposite progressions as before (subsetOf1s for q
+     * and subsetOf0s for p). If no progressions are found in the subsets, this time the inverse of the given partition
+     * is added to goodPartitions (e.g. 1001 if the given partition was 0110). This simulates checking the inverted
+     * partition, cutting the number of partitions actually checked by half, and was the easiest way to implement the
+     * current functionality of this method given the way its previous functionality was implemented. For an example
+     * of the summary above,
+     *
+     * assume the original set of numbers is [1 2 3 4].
+     *
+     * p = 6, q = 5
+     *
+     * A given partition for this set is 0110.
+     *
+     * CHECKING ORIGINAL PARTITION:
+     *
+     * Does the 1 subset have an arithmetic progression of length 6 (AP6)?    (I.e., "Inner p?")     No.
+     * Does the 0 subset have an AP5?                                         (I.e., "Outer q?")     No.
+     *
+     * Store partition 0110.
+     *
+     * The inverse of the given partition is 1001.
+     *
+     * CHECKING "INVERSE" PARTITION:
+     *
+     * Does the 1 subset have an AP5?                             (For the original, "Inner q?")     No.
+     * Does the 0 subset have an AP6?                             (For the original, "Outer p?")     No.
+     *
+     * Store the inverse of partition 0110.
+     *
+     * If one of those questions had a positive answer, the corresponding partition would not be stored.
+     *
+     * @param partition binary string representing a partition
      */
-    private void buildAndCheckPartitions(String partitionScheme) {
-        ArrayList<Integer> partitionA = new ArrayList<>(); // 1's
-        ArrayList<Integer> partitionB = new ArrayList<>(); // 0's
-        String decoratedScheme = ""; // Partition scheme put in [brackets with spaces], built upon demand
-        String awardString = ""; // String representation of a good partition and the
+    private void buildAndCheckPartitions(String partition) {
+        ArrayList<Integer> subsetOf1s = new ArrayList<>(); // 1's
+        ArrayList<Integer> subsetOf0s = new ArrayList<>(); // 0's
+        String awardString = ""; // Partition put in [brackets with spaces], built upon demand
 
-        // Assigning all Integers in the original set of numbers
-        for (int i = 0; i < partitionScheme.length(); i++) {
-            // to partitionA if they coincide with a 1 in the scheme string
-            if (partitionScheme.charAt(i) == '1') {
-                partitionA.add(numbers.get(i));
+        // Assigning all integers in the original set of numbers
+        for (int i = 0; i < partition.length(); i++) {
+            // to subsetOf1s if they coincide with a 1 in the partition string
+            if (partition.charAt(i) == '1') {
+                subsetOf1s.add(numbers.get(i));
             }
-            // and to partitionB if they coincide with a 0
-            else if (partitionScheme.charAt(i) == '0') {
-                partitionB.add(numbers.get(i));
+            // and to subsetOf0s if they coincide with a 0
+            else if (partition.charAt(i) == '0') {
+                subsetOf0s.add(numbers.get(i));
             }
         }
 
-        // Checking partitions for arithmetic progression and adding them to goodPartitions if they have both none
-        if (!partitionA.isEmpty() && !containsAP(partitionA)
-                && !partitionB.isEmpty() && !containsAP(partitionB)) {
-            // Preparing decoratedScheme
-            decoratedScheme = "[";
-            for (int i = 0; i < partitionScheme.length(); i++) {
-                decoratedScheme += partitionScheme.charAt(i) + " ";
-            }
-            decoratedScheme = decoratedScheme.substring(0, decoratedScheme.length() - 1) + "]";
-
-            // Preparing awardString for partition A
+        // If the subsets of the given partition contain none of their assigned progressions,
+        if (!containsAP(subsetOf1s, p) && !containsAP(subsetOf0s, q)) {
+            // compile the given partition to a String,
             awardString = "[";
-            for (Integer n : partitionA) {
-                awardString += Integer.toString(n) + " ";
+            for (int i = 0; i < partition.length(); i++) {
+                awardString += partition.charAt(i) + " ";
             }
-            awardString = awardString.substring(0, awardString.length() - 1) + "] " + "was found to have no arithmetic " +
-                    "progression. The partition scheme was: \n" + decoratedScheme;
-            goodPartitions.add(awardString);
-
-            // Preparing awardString for partition B
-            awardString = "[";
-            for (Integer n : partitionB) {
-                awardString += Integer.toString(n) + " ";
-            }
-            awardString = awardString.substring(0, awardString.length() - 1) + "] " + "was found to have no arithmetic " +
-                    "progression. The partition scheme was: \n" + decoratedScheme;
-            goodPartitions.add(awardString);
+            awardString = awardString.substring(0, awardString.length() - 1) + "]";
+            goodPartitions.add(awardString); // and add the given partition to goodPartitions.
         }
 
-        /*
-         This is a leftover of a previous progression check that was dedicated to one partition at a time (in this case,
-         partitionB). This had the advantage of supplying information about where a partition was in a set when returned
-         (whether it was the 1's or 0's, as described in awardString).
-
-         The commissioner of this project deemed this information superfluous and would have any partition scheme containing
-          a partition with an arithmetic progression discarded, so the progression check was refactored to the one above.
-
-          The check below is retained for future cases where that information may be desirable or when one partition might
-          be checked differently from another (e.g., A for four- and B for five term arithmetic progressions).
-          */
-        /*if (!partitionB.isEmpty() && !containsAP(partitionB)) {
-            decoratedScheme = "[";
-            for (int i = 0; i < partitionScheme.length(); i++) {
-                decoratedScheme += partitionScheme.charAt(i) + " ";
-            }
-            decoratedScheme = decoratedScheme.substring(0, decoratedScheme.length() - 1) + "]";
-
+        // If the subsets of the "inverse" of the given partition contain none of their assigned progrssions,
+        if (!containsAP(subsetOf1s, q) && !containsAP(subsetOf0s, p)) {
+            // compile the inverse partition to a String,
             awardString = "[";
-            for (Integer n : partitionB) {
-                awardString += Integer.toString(n) + " ";
+            for (int i = 0; i < partition.length(); i++) {
+                // adding every given partition character's opposite
+                if (partition.charAt(i) == '1') {
+                    awardString += '0' + " ";
+                }
+                else if (partition.charAt(i) == '0') {
+                    awardString += '1' + " ";
+                }
             }
-            awardString = awardString.substring(0, awardString.length() - 1) + "] " + "was found to have no arithmetic " +
-                    "progression. It represents the 0's in:\n" + decoratedScheme;
-            goodPartitions.add(awardString);
-        }*/
+            awardString = awardString.substring(0, awardString.length() - 1) + "]";
+            goodPartitions.add(awardString); // and add it to goodPartitions.
+        }
     }
 
     /**
-     * Checks whether there is an arithmetic progression of at least four terms in a partition
+     * Checks whether there is an arithmetic progression in a subset of a partition
      *
-     * An arithmetic progression is defined as a pattern like:
-     * a, a + d, a + 2d, ..., a + nd
-     * @param part a partition
+     * An arithmetic progression is defined as a series of terms like:
+     * a, a + d, a + 2d, ..., a + nd (where n is 0 to the desired length of the arithmetic progression minus one)
+     * @param subset
+     * @param APLength length of the arithmetic progression to search for
      * @return true if an arithmetic progression was detected; otherwise, false
      */
-    private boolean containsAP(ArrayList<Integer> part) {
-        int partLength = part.size();
+    private boolean containsAP(ArrayList<Integer> subset, int APLength) {
+        int partLength = subset.size();
         // Eligible minimums of a partition where a = min and d = nextMin - min
         int min, nextMin;
         int d;
-        // The first four terms of an arithmetic progression whose membership to query of the given partition
-        // int term1; // a
-        // int term2; // a + d
-        int term3; // a + 2d
-        int term4; // a + 3d
+        HashSet<Integer> APTerms; // Set of terms for the arithmetic progression of given length
+        boolean termMissing; // Canary
 
-        // If the partition is shorter than 4 elements, having an arithmetic progression is impossible.
+        // If the subset has less elements than the progression length, having an arithmetic progression is impossible.
         if (partLength < 4) {
             return false;
         }
         for (int i = 0; i < partLength - 1; i++) {
             for (int j = i + 1; j < partLength; j++) {
                 // Initialize all the things for the current (min, nextMin) pair
-                min = part.get(i);
-                nextMin = part.get(j);
+                APTerms = new HashSet<>();
+                min = subset.get(i);
+                nextMin = subset.get(j);
                 d = nextMin - min;
-                // term1 = min;         // min is always going to be present
-                // term2 = min + d;     // min + d = nextMin, which will also always be present
-                                        // Thanks, Julzies.
-                term3 = min + 2*d;
-                term4 = min + 3*d;
+                termMissing = false; // Canary's alive
 
-                // Query partition for membership. If all of the terms exist, this partition is disqualified.
-                if (part.contains(term3) && part.contains(term4)) {
+                // Build the set of arithmetic progression terms for the current (min, nextMin) pair
+                for (int k = 0; k < APLength; k++) {
+                    APTerms.add(min + k * d);
+                }
+
+                // Query subset for membership of all terms of the current (min, nextMin) pair.
+                for (Integer term : APTerms) {
+                    if (!subset.contains(term)) {
+                        termMissing = true; // Kill the canary (i.e., a term is missing).
+                    }
+                }
+                // Is the canary still alive (i.e., was there no term missing)?
+                if (!termMissing) {
+                    // Then all terms were present, so we have an arithmetic progression. Return true.
                     return true;
                 }
-                // Otherwise, proceed to return false.
+                // Otherwise, proceed to the next pair or, if none remains, to conclude that the subset has no progression.
             }
         }
         return false;
     }
 
     /**
-     * @return length of this set of numbers
-     */
-    public int getLength() {
-        return length;
-    }
-
-    /**
-     * @return string breakdown of all partitions in schemes where neither partition has an arithmetic progression
-     * or an indication that none such exist
+     * @return string breakdown of all partitions without an arithmetic progression or an indication that none such exist
      */
     public String getResults() {
         String numberSetString, result;
@@ -282,16 +274,16 @@ public class SetOfNums {
             numberSetString += Integer.toString(n) + " ";
         }
         numberSetString = numberSetString.substring(0, numberSetString.length() - 1) + "]";
-        result = "\nFor " + numberSetString + "," + "\n\n";
+        result = "\nFor " + numberSetString + ", the following partitions did not have arithmetic progressions:\n\n";
 
         for (String s : goodPartitions) {
             result += s + "\n\n";
         }
 
-        // Checking if result indicates that no schemes without at least one arithmetic progression were found (i.e., a low line count)
+        // Checking if result indicates that no partition without at least one arithmetic progression was found (i.e., a low line count)
         if (result.split("\n").length <= 2) {
             // If so, give a clear message indicating so.
-            result = "\nNo partitions in schemes without at least one arithmetic progression were found for the set " + numberSetString + ".";
+            result = "\nNo partition without at least one arithmetic progression was found for the set " + numberSetString + ".\n";
         }
         return result;
     }
