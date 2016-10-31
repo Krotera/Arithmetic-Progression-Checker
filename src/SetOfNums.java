@@ -1,7 +1,7 @@
 /*
  * SetOfNums
  *
- * v2.0.0
+ * v2.1.0
  *
  * 2016-10-27
  *
@@ -225,17 +225,17 @@ public class SetOfNums {
         // Eligible minimums of a partition where a = min and d = nextMin - min
         int min, nextMin;
         int d;
-        HashSet<Integer> APTerms; // Set of terms for the arithmetic progression of given length
+        HashSet<Integer> APTerms = new HashSet<>(); // Set of terms for the arithmetic progression of given length
         boolean termMissing; // Canary
 
         // If the subset has less elements than the progression length, having an arithmetic progression is impossible.
-        if (partLength < 4) {
+        if (partLength < APLength) {
             return false;
         }
         for (int i = 0; i < partLength - 1; i++) {
             for (int j = i + 1; j < partLength; j++) {
                 // Initialize all the things for the current (min, nextMin) pair
-                APTerms = new HashSet<>();
+                APTerms.clear(); // Refreshing same APTerms object this iteration to ease garbage collection
                 min = subset.get(i);
                 nextMin = subset.get(j);
                 d = nextMin - min;
@@ -274,7 +274,8 @@ public class SetOfNums {
             numberSetString += Integer.toString(n) + " ";
         }
         numberSetString = numberSetString.substring(0, numberSetString.length() - 1) + "]";
-        result = "\nFor " + numberSetString + ", the following partitions did not have arithmetic progressions:\n\n";
+        result = "\nFor " + numberSetString + ", p = " + p + " (associated with the 1s), " + "q = " + q +
+                " (associated with the 0s), the following partitions did not have arithmetic progressions:\n\n";
 
         for (String s : goodPartitions) {
             result += s + "\n\n";
@@ -283,7 +284,9 @@ public class SetOfNums {
         // Checking if result indicates that no partition without at least one arithmetic progression was found (i.e., a low line count)
         if (result.split("\n").length <= 2) {
             // If so, give a clear message indicating so.
-            result = "\nNo partition without at least one arithmetic progression was found for the set " + numberSetString + ".\n";
+            result = "\nNo partition without at least one arithmetic progression was found for the set " +
+                    numberSetString + ", p = " + p + " (associated with the 1s), " + "q = " + q +
+                    " (associated with the 0s).\n";
         }
         return result;
     }

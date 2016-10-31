@@ -3,7 +3,7 @@
 *For Tom, with love~*
 ***
 
-**v2.0.0** (May have critical bugs)
+**v2.1.0**
 
 ## Background
 This program
