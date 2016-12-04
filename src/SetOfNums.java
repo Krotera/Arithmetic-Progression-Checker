@@ -1,9 +1,9 @@
 /*
  * SetOfNums
  *
- * v2.1.0
+ * v2.2.0
  *
- * 2016-10-27
+ * 2016-12-04
  *
  * Copyright (C) 2016 Krotera
  *
@@ -264,29 +264,31 @@ public class SetOfNums {
     }
 
     /**
-     * @return string breakdown of all partitions without an arithmetic progression or an indication that none such exist
+     * @return string breakdown of all partitions without an arithmetic progression
      */
     public String getResults() {
         String numberSetString, result;
 
+        // Building numberSetString
         numberSetString = "[";
         for (Integer n : numbers) {
             numberSetString += Integer.toString(n) + " ";
         }
         numberSetString = numberSetString.substring(0, numberSetString.length() - 1) + "]";
+        // Building result
         result = "\nFor " + numberSetString + ", p = " + p + " (associated with the 1s), " + "q = " + q +
-                " (associated with the 0s), the following partitions did not have arithmetic progressions:\n\n";
-
+                " (associated with the 0s), \n";
+        if (goodPartitions.size() > 0) {
+            result += "\n";
+        }
         for (String s : goodPartitions) {
             result += s + "\n\n";
         }
-
-        // Checking if result indicates that no partition without at least one arithmetic progression was found (i.e., a low line count)
-        if (result.split("\n").length <= 2) {
-            // If so, give a clear message indicating so.
-            result = "\nNo partition without at least one arithmetic progression was found for the set " +
-                    numberSetString + ", p = " + p + " (associated with the 1s), " + "q = " + q +
-                    " (associated with the 0s).\n";
+        if (goodPartitions.size() > 0) {
+            result += "the " + goodPartitions.size() + " partitions above did not have arithmetic progressions.\n";
+        }
+        else {
+            result += "no partition without at least one arithmetic progression was found.\n";
         }
         return result;
     }

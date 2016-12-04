@@ -1,9 +1,9 @@
 /*
  * Driver
  *
- * v2.1.0
+ * v2.2.0
  *
- * 2016-10-27
+ * 2016-12-04
  *
  * Copyright (C) 2016 Krotera
  *
@@ -21,7 +21,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import java.util.HashSet;
 import java.util.Scanner;
 
 /**
@@ -88,5 +87,6 @@ public class Driver {
             stepOne = "\nSTEP ONE: Specify the initial set of numbers";
         } while (rerun.charAt(0) == 'y');
         System.out.println("Exiting...");
+        sc.close();
     }
 }
