@@ -5,7 +5,7 @@
 
 **v2.2.1**
 
-NOTE: May exhibit memory leak errors (e.g., "GC overhead limit exceeded" or "Java heap space") with many consecutive runs or on certain runs depending on machine
+KNOWN BUGS: May exhibit memory leak errors (e.g., "GC overhead limit exceeded" or "Java heap space") with many consecutive runs or on certain runs depending on machine
 
 ## Background
 This program
