@@ -1,7 +1,7 @@
 /*
  * SetOfNums
  *
- * v2.2.0
+ * v2.2.1
  *
  * 2016-12-04
  *
@@ -284,8 +284,11 @@ public class SetOfNums {
         for (String s : goodPartitions) {
             result += s + "\n\n";
         }
-        if (goodPartitions.size() > 0) {
+        if (goodPartitions.size() > 1) {
             result += "the " + goodPartitions.size() + " partitions above did not have arithmetic progressions.\n";
+        }
+        else if (goodPartitions.size() == 1) {
+            result += "the " + goodPartitions.size() + " partition above did not have arithmetic progressions.\n";
         }
         else {
             result += "no partition without at least one arithmetic progression was found.\n";
