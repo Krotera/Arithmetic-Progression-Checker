@@ -1,7 +1,7 @@
 /*
  * Driver
  *
- * v2.3.0
+ * v2.3.1
  *
  * 2017-02-02
  *
@@ -30,13 +30,15 @@ public class Driver {
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        int start, end, p, q, mode;
+        int start, end, p, q;
+        int mode = 0;
         SetOfNums nums;
         String rerun; // User input to rerun or exit the program
         String modeStr; // User input for mode
         String stepOne = "STEP ONE: Specify the initial set of numbers"; // Changed after the first run for cosmetics
+        String tempNewline = "\n"; // Cosmetic effect; changes like stepOne
 
-        System.out.println("Arithmetic Progression Checker v2.3.0\n\nFor a set of sequential, contiguous integers " +
+        System.out.println("Arithmetic Progression Checker v2.3.1\n\nFor a set of sequential, contiguous integers " +
                 "[n, n + 1, ..., k - 1, k], palindromic partitions without arithmetic progressions of length p and q, " +
                 "if any, will be returned in 'mode 1'. In 'mode 2', only the first progressionless partition will be" +
                 " returned.\n");
@@ -50,8 +52,7 @@ public class Driver {
                 modeStr = sc.nextLine();
             }
             mode = Character.getNumericValue(modeStr.charAt(5));
-            System.out.println("Running in mode " + mode + ".\n");
-            mode = Character.getNumericValue(modeStr.charAt(5));
+            System.out.println("Running in mode " + mode + "." + tempNewline);
             System.out.println(stepOne);
             System.out.println("============================================\n");
             System.out.println("Enter starting number n (greater than 0): ");
@@ -98,6 +99,7 @@ public class Driver {
                 rerun = sc.next().toLowerCase();
             }
             stepOne = "\nSTEP ONE: Specify the initial set of numbers";
+            tempNewline = "";
         } while (rerun.charAt(0) == 'y');
         System.out.println("Exiting...");
         sc.close();

@@ -1,7 +1,7 @@
 /*
  * SetOfNums
  *
- * v2.3.0
+ * v2.3.1
  *
  * 2017-02-02
  *
@@ -127,8 +127,13 @@ public class SetOfNums {
         for (String s : finishedBinaryStrings) {
             buildAndCheckPartitions(s);
             // If in mode 2, return the first good partition.
-            if (mode == 2 && goodPartitions.size() == 1) {
-                return;
+            if (mode == 2 && goodPartitions.size() > 0) {
+                // If buildAndCheckPartitions() added two partitions on its first call,
+                if (goodPartitions.size() == 2) {
+                    // delete the second.
+                    goodPartitions.remove(1);
+                }
+                return; // Return the first partition.
             }
         }
     }
@@ -298,7 +303,7 @@ public class SetOfNums {
             result += "was the first partition without an arithmetic progression.\n";
         }
         // If mode 1
-        else if (goodPartitions.size() == 1) {
+        else if (goodPartitions.size() == 1 && mode == 1) {
             result += "the " + goodPartitions.size() + " partition above did not have arithmetic progressions.\n";
         }
         else {
