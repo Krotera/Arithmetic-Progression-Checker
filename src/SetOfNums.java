@@ -1,11 +1,11 @@
 /*
  * SetOfNums
  *
- * v2.2.1
+ * v2.3.0
  *
- * 2016-12-04
+ * 2017-02-02
  *
- * Copyright (C) 2016 Krotera
+ * Copyright (C) 2017 Krotera
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -33,18 +33,20 @@ public class SetOfNums {
     private ArrayList<String> goodPartitions; // All partitions without an arithmetic progression
     private int length; // Length of the initial set of numbers
     private int p, q; // Lengths of the arithmetic progressions
+    private int mode; // Type of operation (1 - return all progressionless partitions; 2 - return first progressionless partition)
 
     /**
      * Initializes a SetOfNums object with a range of integers [n, n + 1, ..., k - 1, k]
      * @param start Starting value n
      * @param end Ending value k
      */
-    public SetOfNums(int start, int end, int p, int q) {
+    public SetOfNums(int start, int end, int p, int q, int mode) {
         // Initializing class members
         length = end - start + 1;
         numbers = new ArrayList<>(length);
         this.p = p;
         this.q = q;
+        this.mode = mode;
         goodPartitions = new ArrayList<>();
         int temp = start; // Temporary value for populating the array
 
@@ -124,6 +126,10 @@ public class SetOfNums {
         // Passing each partitions string to buildAndCheckPartitions()
         for (String s : finishedBinaryStrings) {
             buildAndCheckPartitions(s);
+            // If in mode 2, return the first good partition.
+            if (mode == 2 && goodPartitions.size() == 1) {
+                return;
+            }
         }
     }
 
@@ -287,6 +293,11 @@ public class SetOfNums {
         if (goodPartitions.size() > 1) {
             result += "the " + goodPartitions.size() + " partitions above did not have arithmetic progressions.\n";
         }
+        // If mode 2
+        else if (goodPartitions.size() == 1 && mode == 2) {
+            result += "was the first partition without an arithmetic progression.\n";
+        }
+        // If mode 1
         else if (goodPartitions.size() == 1) {
             result += "the " + goodPartitions.size() + " partition above did not have arithmetic progressions.\n";
         }
