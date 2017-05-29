@@ -1,9 +1,9 @@
 /*
  * SetOfNums
  *
- * v2.3.1
+ * v2.4.0
  *
- * 2017-02-02
+ * 2017-05-29
  *
  * Copyright (C) 2017 Krotera
  *
@@ -20,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -42,7 +41,7 @@ public class SetOfNums {
      */
     public SetOfNums(int start, int end, int p, int q, int mode) {
         // Initializing class members
-        length = end - start + 1;
+        length = Math.abs(end - start) + 1;
         numbers = new ArrayList<>(length);
         this.p = p;
         this.q = q;
@@ -74,11 +73,10 @@ public class SetOfNums {
         int bitTarget = (int) Math.floor(length / 2); // The number of bits to pad to
         boolean isOdd = false; // When n is odd, the middle element can be put in any subset of the partition (chosen as 1)
         String middleBit = ""; // If n is odd, this will be the middle element, 1, across which strings are mirrored.
-        ArrayList<String> binaryStrings = new ArrayList<>(); // Fresh counts from 0 to k - 1
-        ArrayList<String> paddedBinaryStrings = new ArrayList<>(); // Counts padded to bitTarget
-        ArrayList<String> finishedBinaryStrings = new ArrayList<>(); // Padded counts mirrored
 
-        // Determine k. If n (the length of the array) is even,
+        // Determine k, which is the same for every pair of numbers n (odd) and n + 1 (even) -- e.g., 1 and 2, 3 and 4,
+        // and so on, but calculated differently based on whether n is even or odd.
+        // If n (the length of the array) is even,
         if (length % 2 == 0) {
             // k = 2^(n/2) / 2
             k = ((int) Math.pow(2, (length / 2))) / 2;
@@ -90,42 +88,33 @@ public class SetOfNums {
             isOdd = true;
         }
 
-        // Count from 0 to k - 1 and storing the numbers as strings.
+        // Assemble all partitions of 0 to k - 1.
         for (int i = 0; i < k; i++) {
-            Integer temp = i;
+            String currNumberStr = Integer.toBinaryString(i);
+            String currNumberMirror = "";
+            String currNumberFinished;
 
-            binaryStrings.add(Integer.toBinaryString(temp));
-        }
-
-        // Pad the strings to floor(n/2) bits.
-        for (String s : binaryStrings) {
+            // Pad every number string to floor(n/2) bits.
             // If the string needs padding,
-            if (s.length() != bitTarget) {
+            if (currNumberStr.length() != bitTarget) {
                 // find the difference,
-                int diff = bitTarget - s.length();
-                // and append that many 0's to its left side.
-                for (int i = 0; i < diff; i++) {
-                    s = "0" + s;
+                int diff = bitTarget - currNumberStr.length();
+                // and append that many 0s to its left side.
+                for (int j = 0; j < diff; j++) {
+                    currNumberStr = "0" + currNumberStr;
                 }
             }
-            paddedBinaryStrings.add(s);
-        }
-
-        // Mirror strings.
-        if (isOdd) {
-            middleBit = "1";
-        }
-        for (String s : paddedBinaryStrings) {
-            String sMirror = "";
-            for (int i = s.length() - 1; i >= 0; i--) {
-                sMirror += s.charAt(i);
+            // Next, mirror the string.
+            if (isOdd) {
+                middleBit = "1";
             }
-            finishedBinaryStrings.add(s + middleBit + sMirror);
-        }
-
-        // Passing each partitions string to buildAndCheckPartitions()
-        for (String s : finishedBinaryStrings) {
-            buildAndCheckPartitions(s);
+            for (int m = currNumberStr.length() - 1; m >= 0; m--) {
+                currNumberMirror += currNumberStr.charAt(m);
+            }
+            // Finally, assemble finished string of the current partition.
+            currNumberFinished = currNumberStr + middleBit + currNumberMirror;
+            // Pass each partition string to buildAndCheckPartitions().
+            buildAndCheckPartitions(currNumberFinished);
             // If in mode 2, return the first good partition.
             if (mode == 2 && goodPartitions.size() > 0) {
                 // If buildAndCheckPartitions() added two partitions on its first call,

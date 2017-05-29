@@ -1,9 +1,9 @@
 /*
  * Driver
  *
- * v2.3.1
+ * v2.4.0
  *
- * 2017-02-02
+ * 2017-05-29
  *
  * Copyright (C) 2017 Krotera
  *
@@ -20,7 +20,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 import java.util.Scanner;
 
 /**
@@ -31,59 +30,69 @@ public class Driver {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         int start, end, p, q;
-        int mode = 0;
+        int mode = 1;
         SetOfNums nums;
+        String input, splitInput[];
         String rerun; // User input to rerun or exit the program
-        String modeStr; // User input for mode
-        String stepOne = "STEP ONE: Specify the initial set of numbers"; // Changed after the first run for cosmetics
-        String tempNewline = "\n"; // Cosmetic effect; changes like stepOne
 
-        System.out.println("Arithmetic Progression Checker v2.3.1\n\nFor a set of sequential, contiguous integers " +
+        System.out.println("Arithmetic Progression Checker v2.4.0\n\nFor a set of sequential, contiguous integers " +
                 "[n, n + 1, ..., k - 1, k], palindromic partitions without arithmetic progressions of length p and q, " +
                 "if any, will be returned in 'mode 1'. In 'mode 2', only the first progressionless partition will be" +
-                " returned.\n");
-        System.out.println("Type \"mode 1\" or \"mode 2\" to select mode: ");
+                " returned.");
+        System.out.println("The default mode is 'mode 1'.\n");
         do {
-            modeStr = sc.nextLine();
-            // Admonishment
-            while (!(modeStr.equals("mode 1")) && !(modeStr.equals("mode 2")) && !(modeStr.length() == 6)) {
-                System.out.println("Enter either \"mode 1\" (returns all progressionless partitions) or" +
-                        " \"mode 2\" (returns only the first progressionless partition).");
-                modeStr = sc.nextLine();
+            nums = null;
+            System.out.println("Enter \"n k p q\" (without quotes) where n is a positive starting number, k is an ending number, p is the first progression length p, and q is the second progression length (or type \"mode 1\" or \"mode 2\" to change mode): ");
+            input = sc.nextLine();
+            // Check for mode change
+            while ((input.toLowerCase()).startsWith("mode")) {
+                // Mode admonishment
+                while (!(input.equals("mode 1")) && !(input.equals("mode 2"))) {
+                    System.out.println("Enter either \"mode 1\" (returns all progressionless partitions) or" +
+                            " \"mode 2\" (returns only the first progressionless partition).");
+                    input = sc.nextLine();
+                }
+                mode = Character.getNumericValue(input.charAt(5));
+                System.out.println("\nRunning in mode " + mode + ".");
+                System.out.println("\nEnter \"n k p q\" (without quotes) where n is a positive starting number, k is an ending number, p is the first progression length p, and q is the second progression length (or type \"mode 1\" or \"mode 2\" to change mode): ");
+                input = sc.nextLine();
             }
-            mode = Character.getNumericValue(modeStr.charAt(5));
-            System.out.println("Running in mode " + mode + "." + tempNewline);
-            System.out.println(stepOne);
-            System.out.println("============================================\n");
-            System.out.println("Enter starting number n (greater than 0): ");
-            start = sc.nextInt();
-            // Admonishment
-            while (!(start > 0)) {
-                System.out.println("The starting number must be greater than 0. Please re-enter.");
-                start = sc.nextInt();
+            // Otherwise, try to parse string for numbers
+            try {
+                splitInput = input.split(" ");
+                // Input quantity admonishment
+                while (splitInput.length < 4) {
+                    System.out.println("Not enough numeric arguments. Please re-enter the numbers as \"n k p q\".");
+                    input = sc.nextLine();
+                    splitInput = input.split(" ");
+                }
+                start = Integer.valueOf(splitInput[0]);
+                end = Integer.valueOf(splitInput[1]);
+                p = Integer.valueOf(splitInput[2]);
+                q = Integer.valueOf(splitInput[3]);
             }
-            System.out.println("Enter ending number k (greater than 0): ");
-            end = sc.nextInt();
-            // Admonishment
-            while (!(end > 0)) {
-                System.out.println("The ending number must be greater than 0. Please re-enter.");
-                end = sc.nextInt();
+            catch (NumberFormatException x) {
+                // Format admonishment
+                System.out.println("Error: " + x + "\nPlease re-enter the numbers as \"n k p q\" (without quotes).");
+                input = sc.nextLine();
+                splitInput = input.split(" ");
+                start = Integer.valueOf(splitInput[0]);
+                end = Integer.valueOf(splitInput[1]);
+                p = Integer.valueOf(splitInput[2]);
+                q = Integer.valueOf(splitInput[3]);
             }
-            System.out.println("\nSTEP TWO: Specify the arithmetic progression lengths");
-            System.out.println("====================================================\n");
-            System.out.println("Enter first progression length p (greater than 0): ");
-            p = sc.nextInt();
-            // Admonishment
-            while (!(p > 0)) {
-                System.out.println("Progression lengths must be greater than 0. Please re-enter.");
-                p = sc.nextInt();
-            }
-            System.out.println("Enter second progression length q (greater than 0): ");
-            q = sc.nextInt();
-            // Admonishment
-            while (!(q > 0)) {
-                System.out.println("Progression lengths must be greater than 0. Please re-enter.");
-                q = sc.nextInt();
+            // Arithmetic admonishment
+            while (!(start > 0)
+                    || !(end > 0)
+                    || !(p > 0)
+                    || !(q > 0)) {
+                System.out.println("All numbers must be greater than 0. Please re-enter.");
+                input = sc.nextLine();
+                splitInput = input.split(" ");
+                start = Integer.valueOf(splitInput[0]);
+                end = Integer.valueOf(splitInput[1]);
+                p = Integer.valueOf(splitInput[2]);
+                q = Integer.valueOf(splitInput[3]);
             }
             // Rock 'n roll
             nums = new SetOfNums(start, end, p, q, mode);
@@ -94,12 +103,12 @@ public class Driver {
             System.out.println("Would you like to run another check (y/n)?");
             rerun = sc.next().toLowerCase();
             // Admonishment
-            while (rerun.charAt(0) != 'y' && rerun.charAt(0) != 'n' && rerun.charAt(0) != 'm' && rerun.length() != 6) {
+            while (rerun.charAt(0) != 'y' && rerun.charAt(0) != 'n') {
                 System.out.println("Please use either \"y\" or \"n\" to run another check or exit.");
                 rerun = sc.next().toLowerCase();
             }
-            stepOne = "\nSTEP ONE: Specify the initial set of numbers";
-            tempNewline = "";
+            sc.nextLine(); // Eating garbage newline
+            System.out.print("\n");
         } while (rerun.charAt(0) == 'y');
         System.out.println("Exiting...");
         sc.close();
